@@ -21,6 +21,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.*;
 
@@ -44,7 +47,6 @@ public class PublicUserController {
     Repository repository;
 
     // registrazione utente
-    @CrossOrigin("*")
     @PostMapping(value = "/register", produces = "application/json")
     ResponseEntity<Map<String, String>> register(@RequestHeader HttpHeaders headers) {
         log.info("login here !!!!!");
@@ -53,11 +55,28 @@ public class PublicUserController {
         List<Role> roles = new ArrayList<>();
         roles.add(Role.ADMIN);
         roles.add(Role.USER);
+
+        // create new key
+        SecretKey secretKey = null;
+        String encodedKey = null;
+
+        try {
+
+            secretKey = KeyGenerator.getInstance("AES").generateKey();
+            // get base64 encoded version of the key
+            encodedKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+            log.info("CHIAVE: " + encodedKey);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         User user = User.builder()
                 .id(UUID.randomUUID().toString())
                 .username("sam")
                 .password("asd")
                 .roles(roles)
+                .key(encodedKey)
                 .build();
 
         repository.insert(user);

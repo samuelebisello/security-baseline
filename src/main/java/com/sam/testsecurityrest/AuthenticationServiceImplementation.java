@@ -5,6 +5,7 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.impl.crypto.MacProvider;
+import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -66,22 +67,15 @@ public class AuthenticationServiceImplementation implements UserAuthenticationSe
 
                     List<Role> roles = user.getRoles();
                     String id = user.getId();
+                    String key = user.getKey();
 
                     //token creation
-                    String key = "secret";
-                    byte[] bytes = null;
-                    try {
-                        bytes = key.getBytes("UTF-8");
-                    } catch (UnsupportedEncodingException exc) {
-                        exc.printStackTrace();
-                    }
-
                     return Jwts.builder()
                             .setSubject(username)
                             .setExpiration(new Date(2018,10,10))
                             .claim("id", id)
                             .claim("ruoli", roles)
-                            .signWith(SignatureAlgorithm.HS512, bytes)
+                            .signWith(SignatureAlgorithm.HS512, key)
                             .compact();
 
                 } else
@@ -92,6 +86,10 @@ public class AuthenticationServiceImplementation implements UserAuthenticationSe
 
     }
 
+    @Override
+    public User findUserByUSername(String username) {
+        return repository.findUserByUsername(username);
+    }
 
     @Override
     public User findUserById(String id) {

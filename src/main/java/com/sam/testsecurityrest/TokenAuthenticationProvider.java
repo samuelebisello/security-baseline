@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.impl.TextCodec;
+import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import lombok.AllArgsConstructor;
 
 import lombok.NoArgsConstructor;
@@ -16,12 +17,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+
+import java.security.Key;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Component
@@ -36,26 +42,35 @@ final class TokenAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         this.auth = auth;
     }
 
+
+    // figo!!
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
-    }
+   /*    log.info("Pre Credenziali di accesso: " + userDetails.getPassword());
+        if(userDetails.getPassword().equals("asd")) {
+           throw new BadCredentialsException("credential not match");
+        }*/
 
+    }
 
 
     // chiamata da TokenAuthenticationFilter -> attempt
     @Override
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
 
-        log.info("Credenziali di accesso: " + (String) authentication.getCredentials());
+
+        log.info("Credenziali di accesso: " + username + " , " + (String) authentication.getCredentials());
 
         try {
             String token = (String) authentication.getCredentials();
+
+            User usr = auth.findUserByUSername(username);
+            String key = usr.getKey();
+
             String id = null;
 
             log.info("the token: " + token);
             try {
-
-                String key = TextCodec.BASE64.encode("secret");
 
                 id = (String) Jwts.parser().setSigningKey(key).parseClaimsJws(token).getBody().get("id");
                 log.info(id); // user id

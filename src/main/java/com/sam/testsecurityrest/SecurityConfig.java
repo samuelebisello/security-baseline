@@ -27,10 +27,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.*;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
@@ -46,6 +43,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
@@ -71,10 +69,6 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     //    private static final RequestMatcher PROTECTED_URLS = new NegatedRequestMatcher(PUBLIC_URLS);
     private static final RequestMatcher PROTECTED_URLS = new AntPathRequestMatcher("/protected/**");
 
-
-
-
-
     TokenAuthenticationProvider provider;
 
     @Autowired
@@ -93,6 +87,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     @ExceptionHandler
     protected void configure(final HttpSecurity http) throws Exception {
+
 
         http.authorizeRequests().antMatchers("/public/**").permitAll().and().cors().and()
                 .sessionManagement()
@@ -140,6 +135,8 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
         log.info("sisisisisi");
         filter.setAuthenticationManager(authenticationManager());
         filter.setAuthenticationSuccessHandler(successHandler());
+        //filter.setAuthenticationFailureHandler(failureHandler());
+
         return filter;
     }
 
@@ -150,6 +147,13 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
         return successHandler;
     }
 
+/*    @Bean
+    SimpleUrlAuthenticationFailureHandler failureHandler() {
+        final SimpleUrlAuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
+        log.info("failure handler");
+        failureHandler.setRedirectStrategy(new FailureRedirectStrategy());
+        return failureHandler;
+    }*/
 
     /**
      * Disable Spring boot automatic filter registration.

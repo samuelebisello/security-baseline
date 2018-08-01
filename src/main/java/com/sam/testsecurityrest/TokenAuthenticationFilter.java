@@ -56,6 +56,8 @@ final class TokenAuthenticationFilter extends AbstractAuthenticationProcessingFi
 
         }*/
 
+
+
         final String param = request.getHeader(AUTHORIZATION);
 
         log.info(param);
@@ -66,7 +68,7 @@ final class TokenAuthenticationFilter extends AbstractAuthenticationProcessingFi
                 .orElseThrow(() -> new BadCredentialsException("Missing Authentication Token"));
 
 
-        Authentication auth = new UsernamePasswordAuthenticationToken(token, token);// username + tokenString
+        Authentication auth = new UsernamePasswordAuthenticationToken("sam", token);// username + tokenString
         Authentication aux = getAuthenticationManager().authenticate(auth); /////// chiama Authenticatioqweasdasdsadn provider
     /*    String str = (String) aux.getDetails();
         log.info("asd"  + str);*/
@@ -88,11 +90,12 @@ final class TokenAuthenticationFilter extends AbstractAuthenticationProcessingFi
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        log.info("qua qua qua qua qua qua qua qua qua");
+        log.info("unsuccessfulAuthentication");
 
         log.info(failed.getMessage());
-        //response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         super.unsuccessfulAuthentication(request, response, failed);
+
     }
 
 

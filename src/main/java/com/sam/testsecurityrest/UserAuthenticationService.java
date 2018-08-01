@@ -9,6 +9,7 @@ public interface UserAuthenticationService {
 
     String login(HttpHeaders headers);
     User findUserById(String id);
+    User findUserByUSername(String username);
 
 
 
